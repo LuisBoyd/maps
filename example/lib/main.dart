@@ -15,6 +15,7 @@ import 'annotation_order_maps.dart';
 import 'click_annotations.dart';
 import 'custom_marker.dart';
 import 'full_map.dart';
+import 'kml.dart';
 import 'layer.dart';
 import 'line.dart';
 import 'local_style.dart';
@@ -32,6 +33,7 @@ import 'sources.dart';
 import 'take_snapshot.dart';
 
 final List<ExamplePage> _allPages = <ExamplePage>[
+  kmlPage(),
   MapUiPage(),
   FullMapPage(),
   AnimateCameraPage(),
@@ -61,7 +63,7 @@ class MapsDemo extends StatefulWidget {
   //
   // Alternatively you can replace `String.fromEnvironment("ACCESS_TOKEN")`
   // in the following line with your access token directly.
-  static const String ACCESS_TOKEN = String.fromEnvironment("ACCESS_TOKEN");
+  static const String ACCESS_TOKEN = "pk.eyJ1Ijoid2l6Ym95ZCIsImEiOiJjbDc1MDd6Y3cwYWU0M3VudGo1b2JneDh1In0.V8BVSEzaYMdeAPN1bODDYw";
 
   @override
   State<MapsDemo> createState() => _MapsDemoState();
