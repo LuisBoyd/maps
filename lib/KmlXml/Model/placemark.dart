@@ -1,27 +1,14 @@
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'coordinates.dart';
 
-class Placemark{
+part 'placemark.g.dart';
 
-  Placemark(this.name, this.description, this.id);
-
-  final String id;
-  final String name;
-  final String? description;
-
- Map<String, dynamic> toJson(){
-    return{
-      "name": name != null ? name : "",
-      "description" : description != null ? description : ""
-    };
-  }
-
-}
 
 class Geometry{} //Add override method for writing it out to json.
 
 class Point extends Geometry{
-  Point(this.point);
-  final LatLng point;
+  // Point(this.point);
+  // // final C point;
 }
 
 class MultiPoint extends Geometry{
@@ -50,10 +37,17 @@ class MultiGeometry extends Geometry{
   MultiGeometry(this.Geometries);
   final List<Geometry> Geometries;
 }
+
+@JsonSerializable()
 class Placemarkml {
   String name;
-  List<LatLng> coordinates;
+  List<Coordinates> coordinates;
   bool valid;
-  Placemarkml({required this.name, required this.coordinates, this.valid = true});
+  Placemarkml(this.name, this.coordinates, this.valid);
+
+  factory Placemarkml.fromJson(Map<String, dynamic> json) => _$PlacemarkmlFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PlacemarkmlToJson(this);
+
 }
 

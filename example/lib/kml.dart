@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +10,9 @@ import 'package:xml/xml.dart';
 import 'dart:core';
 import 'main.dart';
 import 'page.dart';
+import 'package:mapbox_gl/KmlXml/Model/coordinates.dart';
 import 'package:mapbox_gl/collection/colletion.dart';
 import 'package:mapbox_gl/KmlXml/Model/placemark.dart';
-
 
 class kmlPage extends ExamplePage{
   kmlPage() : super(const Icon(Icons.add_chart), 'Kml');
@@ -66,6 +67,8 @@ class kmlBodyState extends State<kmlBody>{
   }
 
   Future<List<Placemarkml>> ParseKml(String data) async {
+
+    //Parse the entire xmlDoc
     var doc = XmlDocument
         .parse(data)
         .rootElement;
@@ -81,7 +84,7 @@ class kmlBodyState extends State<kmlBody>{
       String? name = element
           .getElement('name')
           ?.text;
-      List<LatLng> points = [];
+      List<Coordinates> points = [];
       var coordinates = element
           .findAllElements('coordinates')
           .first
@@ -92,27 +95,31 @@ class kmlBodyState extends State<kmlBody>{
         final dat = element.toString().split(",");
         double lat = double.parse(dat[1].toString());
         double lng = double.parse(dat[0].toString());
-        points.add(LatLng(lat, lng));
+        points.add(Coordinates(lat, lng));
       });
       if (name != null && points != null) {
         resp.add(Placemarkml(
-            name: name,
-            coordinates: points));
+            name,
+            points,
+        true));
       }
       else if(points == null && name != null){
         resp.add(Placemarkml(
-            name: name,
-            coordinates: []));
+            name,
+            [],
+        true));
       }
       else if(points != null && name == null){
         resp.add(Placemarkml(
-            name: "",
-            coordinates: points));
+            "",
+            points,
+        true));
       }
       else if(points == null && name == null){
         resp.add(Placemarkml(
-            name: "",
-            coordinates: []));
+            "",
+            [],
+        true));
       }
     });
     return resp;
