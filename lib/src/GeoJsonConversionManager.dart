@@ -14,7 +14,7 @@ class GeoJsonConversionManager{
     var placemarks = doc.findAllElements("Placemark");
     //Itterate through all placemarks.
     placemarks.forEach((element) {
-
+      //Look at DOD design + the c# kml implementation.
     });
 
     return FeatureCollection(features: []);
