@@ -1,0 +1,3 @@
+enum ConversionType{
+  Kml
+}

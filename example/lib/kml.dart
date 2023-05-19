@@ -4,15 +4,14 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:mapbox_gl/GeoJsonConversionManager.dart';
+import 'package:mapbox_gl/ConversionType.dart';
 import 'dart:convert' show utf8;
 import 'dart:convert' show json;
 import 'package:xml/xml.dart';
 import 'dart:core';
 import 'main.dart';
 import 'page.dart';
-import 'package:mapbox_gl/KmlXml/Model/coordinates.dart';
-import 'package:mapbox_gl/collection/colletion.dart';
-import 'package:mapbox_gl/KmlXml/Model/placemark.dart';
 
 class kmlPage extends ExamplePage{
   kmlPage() : super(const Icon(Icons.add_chart), 'Kml');
@@ -32,29 +31,27 @@ class kmlBody extends StatefulWidget{
 
 class kmlBodyState extends State<kmlBody>{
 
-  kmlBodyState() : array = new SmartArray(){
-    print(array.toString());
-  }
-
   static final LatLng center = const LatLng(52.801223114595615, -2.0830431561609304);
   MapboxMapController? controller;
-  final SmartArray array;
+  GeoJsonConversionManager? conversionController;
+
   void _onMapCreated(MapboxMapController controller){
     this.controller = controller;
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
   }
 
   Future<void> Importkml() async {
     Uint8List? file = await PickKmlFile();
-    //print(file!.lengthInBytes);
     var fileContents = utf8.decode(file!);
-    List<Placemarkml> kmlMarkers = await ParseKml(fileContents);
-    print(json.encode(kmlMarkers));
+    //1.take the string and parse it to xml doc.
+    //2.fill in the value for the geojsonManager
+    conversionController = GeoJsonConversionManager(fileContents, ConversionType.Kml);
+    var featureCollection = conversionController!.Convert();
+
   }
 
   Future<Uint8List?> PickKmlFile() async {
@@ -66,70 +63,11 @@ class kmlBodyState extends State<kmlBody>{
     return null;
   }
 
-  Future<List<Placemarkml>> ParseKml(String data) async {
-
-    //Parse the entire xmlDoc
-    var doc = XmlDocument
-        .parse(data)
-        .rootElement;
-    if (doc.name.toString() != 'kml') {
-      throw ("ERROR: the file is not a KML compatible file");
-    }
-
-    List<Placemarkml> resp = [];
-    var elements = doc.findAllElements("Placemark");
-    int cont = 0;
-    elements.forEach((element) {
-      cont++;
-      String? name = element
-          .getElement('name')
-          ?.text;
-      List<Coordinates> points = [];
-      var coordinates = element
-          .findAllElements('coordinates')
-          .first
-          .text
-          .trim()
-          .split(' ');
-      coordinates.forEach((element) {
-        final dat = element.toString().split(",");
-        double lat = double.parse(dat[1].toString());
-        double lng = double.parse(dat[0].toString());
-        points.add(Coordinates(lat, lng));
-      });
-      if (name != null && points != null) {
-        resp.add(Placemarkml(
-            name,
-            points,
-        true));
-      }
-      else if(points == null && name != null){
-        resp.add(Placemarkml(
-            name,
-            [],
-        true));
-      }
-      else if(points != null && name == null){
-        resp.add(Placemarkml(
-            "",
-            points,
-        true));
-      }
-      else if(points == null && name == null){
-        resp.add(Placemarkml(
-            "",
-            [],
-        true));
-      }
-    });
-    return resp;
-  }
 
 
 
   @override
   Widget build(BuildContext context){
-    // executeAfterBuild();
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.stretch,
